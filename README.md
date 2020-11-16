@@ -14,7 +14,7 @@ des adaptations (non fonctionnelles) ont étés faites
 
 # pull payment:
 
-code de correction du DoS vu en cours, avec ajout de la securité sur la reentrance dans la fonction withdraw
+fichier dos.sol: code de correction du DoS vu en cours, avec ajout de la securité sur la reentrance dans la fonction withdraw
 
 /////////
 
