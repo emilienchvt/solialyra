@@ -19,3 +19,7 @@ fichier dos.sol: code de correction du DoS vu en cours, avec ajout de la securit
 /////////
 
 # mini audit
+
+fichiers dans le dossier audit
+audit.sol affiche les commentaires
+correct.sol affiche le contrat sécurisé
