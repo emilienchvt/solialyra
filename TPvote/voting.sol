@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.11;
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
+import "../client/node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 contract Voting is Ownable{
     
@@ -57,11 +57,10 @@ contract Voting is Ownable{
                 winningProposalId = i;
             }
         }
-        emit VotesTallied();
-        changeStatus(WorkflowStatus.VotesTallied);
+            stepTallied();
     }
 
-    function nextStep () public onlyOwner returns (string memory){
+    function nextStep () public onlyOwner returns (uint){
         uint step= uint(status);
         if(step == 0){
             stepProposalstart();
@@ -76,7 +75,7 @@ contract Voting is Ownable{
             stepVotingStop();
         }
         if(step == 4){
-            stepTallied();
+            countVotes();
         }
         return getWorkflowStatus();
     }
@@ -141,53 +140,63 @@ contract Voting is Ownable{
     /* Getters */
 
     function getWinningProposalDescription() public view returns (string memory) {
-        return proposals[winningProposalId].description;
+        if (status == WorkflowStatus.VotesTallied){
+            return proposals[winningProposalId].description;
+        }
+        else return "0";
     }
     
     function getWinningProposalVoteCount() public view returns (uint) {
-        return proposals[winningProposalId].voteCount;
+        if (status == WorkflowStatus.VotesTallied){
+            return proposals[winningProposalId].voteCount;
+        }
+        else return 0;
     }
     
     function isRegisteredVoter(address _voterAddress) public view returns (bool) {
         return voters[_voterAddress].isRegistered;
     }
+
+    function getVotedByAVoter(address _voteraddress) public view returns (uint) {
+        return voters[_voteraddress].votedProposalId;
+    }
     
-    function getWorkflowStatus() public view returns (string memory) {
+    function getWorkflowStatus() public view returns (uint ) {
         string memory result = "";
         uint step= uint(status);
         if(step == 0){
             result = "Enregistrement des utilisateurs en cours";
-            return result;
+            return step;
         }
         if(step == 1){
             result = "Propositions en cours";
-            return result;
+            return step;
         }
         if(step == 2){
             result = "Fin des propositions";
-            return result;
+            return step;
         }
         if(step == 3){
             result = "Votes en cours";
-            return result;
+            return step;
         }
         if(step == 4){
             result = "Votes clos";
-            return result;
+            return step;
         }
         if(step == 5){
             result = "Fin des votes, vous pouvez voir voir les résultats";
-            return result;
+            return step;
         }
     }
 
 
     function showProposals() public view returns (string memory){
-        string memory total = "";
-        string memory newline= "'/n'";
-        string memory descDesc = "Proposition : ";
-        string memory idDesc = "id number ";
-        string memory voteCountedDesc = "with count vote at:"; 
+        string memory total = "Voici les propositions: ";
+        string memory endline= ".\n Suivante: ";
+        string memory descDesc = ", decrite par:  ";
+        string memory idDesc = "proposition numero ";
+        string memory voteCountedDesc = ", a recu ce nombre de vote: "; 
         string memory desc = "";
         string memory id = "";
         string memory voteCounted = ""; 
@@ -195,7 +204,7 @@ contract Voting is Ownable{
             desc= proposals[i].description;
             id= uint2str(i);
             voteCounted= uint2str (proposals[i].voteCount);
-            total = string (abi.encodePacked(total, newline, idDesc, id, newline, descDesc, desc, newline, voteCountedDesc, voteCounted ));
+            total = string (abi.encodePacked(total, idDesc, id, descDesc, desc, voteCountedDesc, voteCounted, endline ));
         }
         return total;
     }
@@ -219,4 +228,3 @@ contract Voting is Ownable{
     }
 
 }
-
