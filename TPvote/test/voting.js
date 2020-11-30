@@ -6,7 +6,7 @@ contract('Voting', function (accounts) {
     const admin = accounts[0];
     const voter1 = accounts[1];
     const voter2 = accounts[2];
-    const voter3 = accounts[3];
+
     let VotingInstance;
 
     const status = {
@@ -22,46 +22,75 @@ contract('Voting', function (accounts) {
         VotingInstance = await Voting.new({from: admin});
     });
 
-    it("Adminstrator should add a Voter to whitelist", async () => {
-
-        let isVoterBefore = await VotingInstance.isVoter(voter1, {from: admin});
-        expect(isVoterBefore).to.equal(false);
-
+    it("Adminc can add voters", async () => {
+        expect(await VotingInstance.isRegisteredVoter(voter1, {from: admin})).to.equal(false);
         await VotingInstance.registerVoter(voter1, {from: admin});
-
-        let isVoterAfter = await VotingInstance.isVoter(voter1, {from: admin});
-        expect(isVoterAfter).to.equal(true);
+        expect(await VotingInstance.isRegisteredVoter(voter1, {from: admin})).to.equal(true);
     });
 
-    it("Adminstrator should start proposal registration session", async () => {
-
-        let beforeStatus = await VotingInstance.workflowState();
-        expect(status[beforeStatus]).to.equal('RegisteringVoters');
-
-        await VotingInstance.startProposalRegistration({from: admin});
-
-        let afterStatus = await VotingInstance.workflowState();
-        expect(status[afterStatus]).to.equal('ProposalsRegistrationStarted');
+    it("Admin can start proposal session", async () => {
+        expect( await VotingInstance.getWorkflowStatus()).to.be.bignumber.equal('0');
+        await VotingInstance.nextStep({from: admin}); 
+        expect( await VotingInstance.getWorkflowStatus()).to.be.bignumber.equal('1');
     });
         
-    it("Voter should register a proposal", async () => {
-
+    it("Voter can propose an idea", async () => {
+        await VotingInstance.registerVoter(admin, {from: admin});
         await VotingInstance.registerVoter(voter1, {from: admin});
-        await VotingInstance.registerVoter(voter2, {from: admin});
-        await VotingInstance.registerVoter(voter3, {from: admin});
-
-        await VotingInstance.startProposalRegistration({from: admin});
-
-        let afterStatus = await VotingInstance.workflowState();
-        expect(status[afterStatus]).to.equal('ProposalsRegistrationStarted');
-
-        nbProposals = await VotingInstance.proposalCounts();
-
-        await VotingInstance.registerProposal('aaa', {from: voter1});
-        await VotingInstance.registerProposal('bbb', {from: voter2});
-        await VotingInstance.registerProposal('ccc', {from: voter3});
-
-        expect(new BN(await VotingInstance.proposalCounts())).to.be.bignumber.above(new BN(nbProposals));
+        await VotingInstance.nextStep({from: admin});
+        expect( await VotingInstance.getProposalsCount()).to.be.bignumber.equal('0');
+        await VotingInstance.propose('aaa', {from: admin});
+        await VotingInstance.propose('bbb', {from: voter1});
+        // test cant pass if voter2 want to propose because he is not in voters list
+        // await VotingInstance.propose('bbb', {from: voter2});
+        expect( await VotingInstance.getProposalsCount()).to.be.bignumber.equal('2');
     });
     
+    it("Admin can go through all steps of the voting process", async () => {
+        expect( await VotingInstance.getWorkflowStatus()).to.be.bignumber.equal('0');
+        await VotingInstance.nextStep({from: admin}); 
+        expect( await VotingInstance.getWorkflowStatus()).to.be.bignumber.equal('1');
+        await VotingInstance.nextStep({from: admin}); 
+        expect( await VotingInstance.getWorkflowStatus()).to.be.bignumber.equal('2');
+        await VotingInstance.nextStep({from: admin}); 
+        expect( await VotingInstance.getWorkflowStatus()).to.be.bignumber.equal('3');
+        await VotingInstance.nextStep({from: admin}); 
+        expect( await VotingInstance.getWorkflowStatus()).to.be.bignumber.equal('4');
+        await VotingInstance.nextStep({from: admin}); 
+        expect( await VotingInstance.getWorkflowStatus()).to.be.bignumber.equal('5');
+    });
+
+    it("Voter can  vote", async () => {
+        await VotingInstance.registerVoter(admin, {from: admin});
+        await VotingInstance.registerVoter(voter1, {from: admin});
+        await VotingInstance.nextStep({from: admin});
+        await VotingInstance.propose('aaa', {from: admin});
+        await VotingInstance.propose('bbb', {from: voter1});
+        await VotingInstance.nextStep({from: admin});
+        await VotingInstance.nextStep({from: admin});
+
+        await VotingInstance.vote(0, {from: voter1});
+        await VotingInstance.vote(0, {from: admin});
+
+        expect(await VotingInstance.getVotedByAVoter(admin, {from: admin})).to.be.bignumber.equal('0');
+        expect(await VotingInstance.getVotedByAVoter(voter1, {from: admin})).to.be.bignumber.equal('0');;
+    });
+
+    it("Counting is ok", async () => {
+        await VotingInstance.registerVoter(admin, {from: admin});
+        await VotingInstance.registerVoter(voter1, {from: admin});
+        await VotingInstance.nextStep({from: admin});
+        await VotingInstance.propose('aaa', {from: admin});
+        await VotingInstance.propose('bbb', {from: voter1});
+        await VotingInstance.nextStep({from: admin});
+        await VotingInstance.nextStep({from: admin});
+        await VotingInstance.vote(1, {from: voter1});
+        await VotingInstance.vote(1, {from: admin});
+        await VotingInstance.nextStep({from: admin});
+        await VotingInstance.nextStep({from: admin});
+
+        expect(await VotingInstance.winningProposalId({from: admin})).to.be.bignumber.equal('1');
+        
+    });
+
 });
