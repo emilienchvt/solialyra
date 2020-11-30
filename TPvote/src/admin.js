@@ -63,7 +63,7 @@ class Admin extends Component {
     checkVoter = async() => {
         const { contract , accounts} = this.state;
         const address = document.getElementById("checkAddress").value;
-        const yesOrNo = await contract.methods.getVotedByAVoter(address).send({from: accounts[0]});
+        const yesOrNo = await contract.methods.getVotedByAVoter(address).call();
         document.getElementById("yesNo").innerHTML=yesOrNo;
     }
 
