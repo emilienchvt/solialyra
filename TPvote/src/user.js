@@ -51,7 +51,7 @@ class User extends Component {
     checkVoter = async() => {
         const { contract, accounts } = this.state;
         const address = document.getElementById("checkAddress").value;
-        const yesOrNo = await contract.methods.getVotedByAVoter(address).call();
+        const yesOrNo = await contract.methods.getVotedByAVoter(address).send({from: accounts[0]});
         document.getElementById("yesNo").innerHTML=yesOrNo;
     }
 
@@ -88,7 +88,7 @@ class User extends Component {
                     <h1>Bonjour Monsieur le voteur.</h1><p>La session de vote en est actuellement à l'étape {this.state.step}</p>
                     <h2>A cette étape, vous devez attendre que l'administrateur lance l'étape des votes</h2>
                     <p>En attendant, voici l'ensemble des propositions qui ont été soumises au prochain vote: </p>
-                    {this.state.proposals}
+                    <p dangerouslySetInnerHTML={{__html: this.state.proposals}} />
                 </div>
             )        
         }
@@ -100,7 +100,7 @@ class User extends Component {
                     <h2>A cette étape, vous pouvez voter pour la meilleure idée. Vous pourrez changer votre vote jusqu'à la fin de cette étape.</h2>
                     <input type="text" id="votedId" />
                     <button onClick={this.vote} >Voter</button>       
-                    <p>{this.state.proposals}</p>
+                    <p dangerouslySetInnerHTML={{__html: this.state.proposals}} />
                 </div>
             )
         }
@@ -111,7 +111,7 @@ class User extends Component {
                     <h1>Bonjour Monsieur le voteur.</h1><p>La session de vote en est actuellement à l'étape {this.state.step}</p>
                     <h2>A cette étape, les votes sont finis, vous devez attendre le comptage par l'admin.</h2>
                     <p>voici un récapitulatif des propositions et leur nombre de votes, merci</p>
-                    {this.state.proposals}
+                    <p dangerouslySetInnerHTML={{__html: this.state.proposals}} />
                 </div>
             )
         }
@@ -121,11 +121,11 @@ class User extends Component {
                     <a href="/admin">Page admin</a> / <a href="/user>">Reload la page (pour verifier les changement d'état)</a>
                     <h1>Bonjour Monsieur le voteur.</h1><p>La session de vote en est actuellement à l'étape {this.state.step}</p>
                     <h2>Nous avons notre grand gagnant! C'est la proposition {this.state.winningDesc}, de numéro d'id {this.state.winningID} avec {this.state.winningCount} votes. </h2>
-                    {this.state.proposals}
                     <p>Si vous voulez voir pour qui a voté un utilisateur, rentrez son adress ici:</p>
                     <input type="text" id="checkAddress" />
                     <button onClick={this.checkVoter} >Check</button>
                     <div id="yesNo"></div>
+                    <p dangerouslySetInnerHTML={{__html: this.state.proposals}} />
                 </div>
             )
         } 
