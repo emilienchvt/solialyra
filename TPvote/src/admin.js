@@ -13,17 +13,13 @@ class Admin extends Component {
       try {
         const web3 = await getWeb3();
         const accounts = await web3.eth.getAccounts();
-
         const networkId = await web3.eth.net.getId();
         const deployedNetwork = Voting.networks[networkId];
-    
         const instance = new web3.eth.Contract(
           Voting.abi,
           deployedNetwork && deployedNetwork.address,
         );
-
         this.setState({ web3, accounts, contract: instance, }, this.runInit);
-
       } catch (error) {
         alert(
           `Non-Ethereum browser detected. Can you please try to install MetaMask before starting.`,
