@@ -99,7 +99,7 @@ class Admin extends Component {
                     <h1>Bonjour Monsieur l'Admin.</h1><p>La session de vote en est actuellement à l'étape {this.state.step}</p>Vous pouvez passer a l'étape suivante en cliquant sur ce bouton, attention soyez sur de ce que vous faites.<button onClick={this.nextStep}>Next Step!</button>
                     <h2>A cette étape, vous ne pouvez que passer a l'étape suivante.</h2>
                     <p>En attendant, voici l'ensemble des propositions qui ont été soumises au prochain vote: </p>
-                    {this.state.proposals}
+                    <p dangerouslySetInnerHTML={{__html: this.state.proposals}} />
                 </div>
             )        
         }
@@ -109,7 +109,7 @@ class Admin extends Component {
                     <a href="/admin">Reload la page (pour verifier les changement d'état)</a> / <a href="/user">Page User</a>
                     <h1>Bonjour Monsieur l'Admin.</h1><p>La session de vote en est actuellement à l'étape {this.state.step}</p>Vous pouvez passer a l'étape suivante en cliquant sur ce bouton, attention soyez sur de ce que vous faites.<button onClick={this.nextStep}>Next Step!</button>
                     <h2>A cette étape, vous ne pouvez rien faire. Juste aller a l'étape suivante quand c'est la fin des votes.</h2>
-                    {this.state.proposals}
+                    <p dangerouslySetInnerHTML={{__html: this.state.proposals}} />
                 </div>
             )
         }
@@ -119,7 +119,7 @@ class Admin extends Component {
                     <a href="/admin">Reload la page (pour verifier les changement d'état)</a> / <a href="/user">Page User</a>
                     <h1>Bonjour Monsieur l'Admin.</h1><p>La session de vote en est actuellement à l'étape {this.state.step}</p>Vous pouvez passer a l'étape suivante en cliquant sur ce bouton, attention soyez sur de ce que vous faites.<button onClick={this.nextStep}>Next Step!</button>
                     <h2>Fin des votes! Passer à l'étape suivante quand vous voulez comptabiliser les votes pour le gagnant</h2>
-                    {this.state.proposals}
+                    <p dangerouslySetInnerHTML={{__html: this.state.proposals}} />
                 </div>
             )
         }
@@ -129,11 +129,11 @@ class Admin extends Component {
                     <a href="/admin">Reload la page (pour verifier les changement d'état)</a> / <a href="/user">Page User</a>
                     <h1>Bonjour Monsieur l'Admin.</h1><p>La session de vote en est actuellement à l'étape {this.state.step}. Fin des votations.</p>
                     <h2>Nous avons notre grand gagnant! C'est la proposition {this.state.winningDesc}, de numéro d'id {this.state.winningID} avec {this.state.winningCount} votes. </h2>
-                    {this.state.proposals}
                     <p>Si vous voulez voir pour qui a voté un utilisateur, rentrez son adress ici:</p>
                     <input type="text" id="checkAddress" />
                     <button onClick={this.checkVoter} >Check</button>
                     <div id="yesNo"></div>
+                    <p dangerouslySetInnerHTML={{__html: this.state.proposals}} />
                 </div>
             )
         }
