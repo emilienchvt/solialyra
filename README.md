@@ -2,7 +2,7 @@
 
 Repo des codes pour alyra  
 
-# TP1 Vote:  
+# Defi Vote:  
 
 voting.sol est mon contrat voting. Il a été amélioré au fur et a mesure du temps selon mes besoins.  
 Dans src il y a l'ensemble de mes fichiers react pour la dapp. Deux precisions:  
