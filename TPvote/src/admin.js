@@ -5,7 +5,7 @@ import Voting from "./contracts/Voting.json";
 
 
 class Admin extends Component {  
-    state = { web3: null, accounts: null, contract: null, step: 0, proposals: null, winningDesc:null, winningID: 0};
+    state = { web3: null, accounts: null, contract: null, step: 0, proposals: null, winningDesc:null, winningID: 0, canHe:false};
 
 
     componentDidMount = async () => {
@@ -19,7 +19,13 @@ class Admin extends Component {
           Voting.abi,
           deployedNetwork && deployedNetwork.address,
         );
-        this.setState({ web3, accounts, contract: instance, }, this.runInit);
+        const account = accounts[0];
+        let admin = await instance.methods.owner().call();
+        let heCan=true;
+        if(account!=admin){
+            heCan=false;
+        }
+        this.setState({ web3, accounts, contract: instance, canHe:heCan }, this.runInit);
       } catch (error) {
         alert(
           `Non-Ethereum browser detected. Can you please try to install MetaMask before starting.`,
@@ -57,7 +63,7 @@ class Admin extends Component {
     }
 
     checkVoter = async() => {
-        const { contract , accounts} = this.state;
+        const { contract } = this.state;
         const address = document.getElementById("checkAddress").value;
         const yesOrNo = await contract.methods.getVotedByAVoter(address).call();
         document.getElementById("yesNo").innerHTML=yesOrNo;
@@ -68,6 +74,9 @@ class Admin extends Component {
         if (!this.state.web3) {
             return <div>Loading Web3, accounts, and contract...</div>;
           } 
+        if (this.state.canHe==false){
+            return window.location.href = "/notAdmin";
+        }
         if( this.state.step == 0 ){
             return(      
                 <div className="admin">

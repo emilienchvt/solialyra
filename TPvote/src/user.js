@@ -5,7 +5,7 @@ import Voting from "./contracts/Voting.json";
 
 
 class User extends Component {  
-    state = { web3: null, accounts: null, contract: null, step: 0, proposals: null, voters: null, winningDesc:null, winningID: null, winningCount: null};
+    state = { web3: null, accounts: null, contract: null, step: 0, proposals: null, voters: null, winningDesc:null, winningID: null, winningCount: null, canHe:true};
 
     componentDidMount = async () => {
       try {
@@ -17,11 +17,15 @@ class User extends Component {
           Voting.abi,
           deployedNetwork && deployedNetwork.address,
         );
-        this.setState({ web3, accounts, contract: instance}, this.runInit);
+        const account = accounts[0];
+        let isAVoter = await instance.methods.isRegisteredVoter(account).call();
+        let heCan = true;
+        if (isAVoter==false){
+            heCan= false;
+        }
+        this.setState({ web3, accounts, contract: instance, canHe: heCan}, this.runInit);
       } catch (error) {
-        alert(
-          `Non-Ethereum browser detected. Can you please try to install MetaMask before starting.`,
-        );
+        alert( `Non-Ethereum browser detected. Can you please try to install MetaMask before starting.`, );
         console.error(error);
       }
     };
@@ -61,6 +65,9 @@ class User extends Component {
         if (!this.state.web3) {
             return <div>Loading Web3, accounts, and contract...</div>;
           } 
+        if (this.state.canHe==false){
+            return window.location.href = "/notAllowed";
+        }
         if( this.state.step == 0 ){
             return(      
                 <div className="user">
