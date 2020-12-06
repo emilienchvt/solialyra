@@ -86,36 +86,31 @@ contract Voting is Ownable{
         emit WorkflowStatusChange(status, _status);
         status = _status;
     }
+
+    function applyStep(currentStatus, nextStatus, actionGenerator) internal onlyOwner {
+        require(status == currentStatus);
+        emit actionGenerator();
+        changeStatus(nextStatus);
+    }
   
     function stepProposalstart() internal onlyOwner {
-        require(status == WorkflowStatus.RegisteringVoters);
-        emit ProposalsRegistrationStarted();
-        changeStatus(WorkflowStatus.ProposalsRegistrationStarted);
+        applyStep(WorkflowStatus.RegisteringVoters, ProposalsRegistrationStarted, WorkflowStatus.ProposalsRegistrationStarted)
     }
     
     function stepProposalstop() internal onlyOwner {
-        require(status == WorkflowStatus.ProposalsRegistrationStarted);
-        emit ProposalsRegistrationEnded();
-        changeStatus(WorkflowStatus.ProposalsRegistrationEnded);
+        applyStep(WorkflowStatus.ProposalsRegistrationStarted, ProposalsRegistrationEnded, WorkflowStatus.ProposalsRegistrationEnded)
     }
     
     function stepVotingStart() internal onlyOwner {
-        require(status == WorkflowStatus.ProposalsRegistrationEnded);
-        emit VotingSessionStarted();
-        changeStatus(WorkflowStatus.VotingSessionStarted);
+        applyStep(WorkflowStatus.ProposalsRegistrationEnded, VotingSessionStarted, WorkflowStatus.VotingSessionStarted)
     }
     
     function stepVotingStop() internal onlyOwner {
-        require(status == WorkflowStatus.VotingSessionStarted);
-        emit VotingSessionEnded();
-        changeStatus(WorkflowStatus.VotingSessionEnded);
+        applyStep(WorkflowStatus.VotingSessionStarted, VotingSessionEnded, WorkflowStatus.VotingSessionEnded)
     }
 
     function stepTallied() internal onlyOwner {
-        require(status == WorkflowStatus.VotingSessionEnded);
-        emit VotesTallied();
-        changeStatus(WorkflowStatus.VotesTallied);
-
+        applyStep(WorkflowStatus.VotingSessionEnded, VotesTallied, WorkflowStatus.VotesTallied)
     }
      
     /* pour les voteurs */
